@@ -47,7 +47,7 @@ public class NetworkClient {
 		}
 	}
 
-	public String sendMessage(String message) throws IOException { 
+	public String sendMessage(String message) throws IOException {
 		String result = "NO SERVER CONNECTION";
 		if(tcpClient.hasConnection()){
 			result = this.tcpClient.sendMessage(message);
@@ -102,7 +102,6 @@ public class NetworkClient {
 
 					AdhocNetworkManager.responseList.clear();
 				}else{
-					Toast.makeText(this.context,"Sem conexão", Toast.LENGTH_SHORT).show();
 					System.out.println(">>> Sem conexão");
 					result = "BLUETOOTH NOT CONNECTED";
 				}

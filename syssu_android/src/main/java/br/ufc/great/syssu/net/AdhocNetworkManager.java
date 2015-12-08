@@ -35,7 +35,7 @@ public class AdhocNetworkManager {
 			instance.onResume();
 			instance.subscribeBluetoothOptionalEvents(bluetoothEventsListener);
 			tsMonitor = new TS_Monitor();
-		}
+        }
 		return instance;
 	}
 
@@ -139,6 +139,11 @@ public class AdhocNetworkManager {
 		public void onDeviceFound(String name, String address) {
 			// TODO Auto-generated method stub			
 			System.out.println(">>>NetworkEventListener>>> DeviceFound >> " + name);
+			try {
+				instance.connect(address);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
 		}
 
 		@Override

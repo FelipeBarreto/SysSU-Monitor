@@ -61,7 +61,7 @@ public class Domain implements IDomain {
             JSONRPC2Notification not = new JSONRPC2Notification("put", params);
 
             // >>> Always send PUT message to Provider.INFRA. It's not permitted put tuple in ad hoc providers.
-            String result = ubiBroker.sendMessage(not.toJSON().toJSONString(), Provider.INFRA);
+            String result = ubiBroker.sendMessage(not.toJSON().toJSONString(), provider);
 
             if (result != null && !result.equals("")) {
                 try {

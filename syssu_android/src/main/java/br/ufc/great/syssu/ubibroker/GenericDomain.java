@@ -95,6 +95,12 @@ public class GenericDomain implements IDomain {
 				infraDomain.put(tuple, key);
 			}
 			break;
+			case ADHOC:
+				if(adhocDomain != null){
+					System.out.println("***Put ADHOC");
+					adhocDomain.put(tuple, key);
+				}
+				break;
 		default:
 			if(localDomain != null){
 				System.out.println("***Put LOCAL");
@@ -414,9 +420,15 @@ public class GenericDomain implements IDomain {
 	public void unsubscribe(Object reactionId, String key)
 			throws TupleSpaceException, TupleSpaceSecurityException {
 
-		localDomain.unsubscribe(reactionId, key);
-		infraDomain.unsubscribe(reactionId, key);
-		adhocDomain.unsubscribe(reactionId, key);
+        if(localDomain != null){
+            localDomain.unsubscribe(reactionId, key);
+        }
+        if(infraDomain != null){
+            infraDomain.unsubscribe(reactionId, key);
+        }
+        if(adhocDomain != null){
+            adhocDomain.unsubscribe(reactionId, key);
+        }
 	}
 
 	private boolean findServerConnection(){
