@@ -157,8 +157,15 @@ public class BluetoothCommunicable extends Communicable {
 				e.printStackTrace();
 			}
 			onActiveNetwork();
+
 			try {
 				api.ensureDiscoverable();
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+
+			try {
+				api.startDiscovery();
 			} catch (RemoteException e) {
 				e.printStackTrace();
 			}

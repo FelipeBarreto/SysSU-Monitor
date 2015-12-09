@@ -70,7 +70,7 @@ public class Domain implements IDomain {
                         throw new TupleSpaceException(error.getError().getMessage());
                     }
                 } catch (JSONRPC2ParseException ex) {
-                    throw new TupleSpaceException(ex);
+                   // throw new TupleSpaceException(ex);
                 } catch (JSONRPC2InvalidMessageException ex) {
                     throw new TupleSpaceException(ex);
                 }

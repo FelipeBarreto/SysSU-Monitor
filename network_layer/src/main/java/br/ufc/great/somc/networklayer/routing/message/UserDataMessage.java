@@ -74,7 +74,7 @@ public class UserDataMessage extends RoutingMessage {
 		try{
 				messageString.insert(0, " -id " + getContent().get("id"));
 		} catch (JSONException e) {
-				e.printStackTrace();
+
 		}
 		return messageString.toString();
 	}

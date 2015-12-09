@@ -1,5 +1,6 @@
 package br.ufc.great.iot.syssumonitor;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SyssuManager mSyssu;
 
-    private String myId = "Device A";
+    private String myId = "User A";
     private boolean running = false;
     private Object subscribeId;
 
@@ -54,28 +55,39 @@ public class MainActivity extends AppCompatActivity {
         rvUsers.addOnItemTouchListener(new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-
+                        Intent it = new Intent(MainActivity.this, LabMap.class);
+                        startActivity(it);
                     }
                 })
         );
 
-        mSyssu.start();
+       // mSyssu.start();
 
         new Thread(new Runnable() {
             @Override
             public void run() {
                 running = true;
+
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                // Toast.makeText(MainActivity.this, "a", Toast.LENGTH_SHORT).show();
                 Tuple t = (Tuple) new Tuple().addField("ContextKey", "context.device.id")
                                             .addField("DeviceId", myId);
-                while(running){
-                    mSyssu.put(t);
 
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                mUsers.add(myId);
+                mAdapter.setmDataset(mUsers);
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAdapter.notifyDataSetChanged();
                     }
-                }
+                });
+
+
             }
         }).start();
 
@@ -107,21 +119,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void react(Tuple tuple) {
                 String id = tuple.getField(1).getValue().toString();
-                if(!mUsers.contains(id)){
+                //if(!mUsers.contains(id)){
                     mUsers.add(id);
                     mAdapter.setmDataset(mUsers);
                     mAdapter.notifyDataSetChanged();
-                }
+               // }
             }
         };
 
-        subscribeId = mSyssu.subscribe(reaction);
+        //subscribeId = mSyssu.subscribe(reaction);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mSyssu.unsubscribe(subscribeId);
+        //mSyssu.unsubscribe(subscribeId);
         running = false;
     }
 }

@@ -10,6 +10,7 @@ import br.ufc.great.syssu.base.Tuple;
 import br.ufc.great.syssu.base.TupleSpaceException;
 import br.ufc.great.syssu.base.TupleSpaceSecurityException;
 import br.ufc.great.syssu.base.interfaces.IReaction;
+import br.ufc.great.syssu.net.AdhocNetworkManager;
 import br.ufc.great.syssu.ubibroker.GenericDomain;
 import br.ufc.great.syssu.ubibroker.GenericUbiBroker;
 import br.ufc.great.syssu.ubicentre.UbiCentreProcess;
@@ -43,6 +44,7 @@ public class SyssuManager {
         try {
             GenericUbiBroker ubiBroker = GenericUbiBroker.createUbibroker(context);
             mDomain = (GenericDomain) ubiBroker.getDomain("GREAT");
+            AdhocNetworkManager.setDomain(mDomain);
         } catch (IOException e) {
             System.exit(1);
         } catch (TupleSpaceException e) {
@@ -62,7 +64,7 @@ public class SyssuManager {
 
     public void put (Tuple tuple){
         try {
-            mDomain.put(tuple, Provider.ADHOC);
+            mDomain.put(tuple, Provider.LOCAL);
         } catch (TupleSpaceException e) {
             e.printStackTrace();
         } catch (TupleSpaceSecurityException e) {
@@ -72,7 +74,7 @@ public class SyssuManager {
 
     public Object subscribe (IReaction reaction){
         try {
-            return mDomain.subscribe(reaction, "put", "", Provider.ADHOC);
+            return mDomain.subscribe(reaction, "put", "", Provider.LOCAL);
         } catch (TupleSpaceException e) {
             e.printStackTrace();
         } catch (TupleSpaceSecurityException e) {

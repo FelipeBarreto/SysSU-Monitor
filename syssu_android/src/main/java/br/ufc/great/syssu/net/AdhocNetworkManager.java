@@ -1,5 +1,7 @@
 package br.ufc.great.syssu.net;
 
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.Vector;
 import java.util.concurrent.Semaphore;
 
@@ -11,11 +13,17 @@ import android.os.RemoteException;
 import br.ufc.great.somc.networklayer.base.NetworkEventListener;
 import br.ufc.great.somc.networklayer.base.NetworkManager;
 import br.ufc.great.somc.networklayer.bluetooth.BluetoothEventsListener;
+import br.ufc.great.syssu.base.Provider;
+import br.ufc.great.syssu.base.Tuple;
+import br.ufc.great.syssu.base.TupleSpaceException;
+import br.ufc.great.syssu.base.TupleSpaceSecurityException;
 import br.ufc.great.syssu.jsonrpc2.JSONRPC2InvalidMessageException;
 import br.ufc.great.syssu.jsonrpc2.JSONRPC2Message;
 import br.ufc.great.syssu.jsonrpc2.JSONRPC2ParseException;
 import br.ufc.great.syssu.jsonrpc2.JSONRPC2Request;
 import br.ufc.great.syssu.jsonrpc2.JSONRPC2Response;
+import br.ufc.great.syssu.ubibroker.GenericDomain;
+import br.ufc.great.syssu.ubibroker.GenericUbiBroker;
 import br.ufc.great.syssu.ubicentre.controllers.FrontController;
 
 public class AdhocNetworkManager {
@@ -25,6 +33,8 @@ public class AdhocNetworkManager {
 	public static TS_Monitor tsMonitor;
 	public static Semaphore semaphore = new Semaphore(0);
 	public static Vector<String> responseList = new Vector<String>();
+
+    private static GenericDomain mDomain;
 
 	public static NetworkManager getNetworkManagerInstance(Context context){
 		if (instance == null) {
@@ -38,6 +48,10 @@ public class AdhocNetworkManager {
         }
 		return instance;
 	}
+
+    public static void setDomain(GenericDomain mDomain){
+        AdhocNetworkManager.mDomain = mDomain;
+    }
 
 	public static Context getContext() {
 		return context;
@@ -67,6 +81,9 @@ public class AdhocNetworkManager {
 		
 		@Override
 		public void onReceiveMessage(String deviceAddress, JSONObject message) {
+            if(deviceAddress.equals("02:00:00:00:00:00")){
+                return;
+            }
 			System.out.println("\n\n >>>*** RECIVE MSG ***<<< \n from: " + deviceAddress + " msg: " + message.toString());
 
 			JSONRPC2Message msn = null;
@@ -113,20 +130,44 @@ public class AdhocNetworkManager {
 				responseList.add(msn.toString());
 				semaphore.release();
 			}
+
+			try {
+				Tuple tuple = new Tuple();
+				JSONObject tupleObject = message.getJSONObject("params").getJSONObject("tuple");
+                Iterator<String> keys = tupleObject.keys();
+				while(keys.hasNext()){
+					String key = keys.next();
+					tuple.addField(key, tupleObject.get(key));
+				}
+
+				mDomain.put(tuple, Provider.LOCAL);
+
+			} catch (TupleSpaceException e) {
+				e.printStackTrace();
+			} catch (JSONException e) {
+				e.printStackTrace();
+			} catch (TupleSpaceSecurityException e) {
+				e.printStackTrace();
+			}
 			System.out.println(">>>NetworkEventListener>>> onReceiveMessage >>>END");
 			
 		}
 
 		@Override
 		public void onNotNeighborFound(String macAddress) {
-			// TODO Auto-generated method stub
-			try {
-				System.out.println(">>>NetworkEventListener>>> NotNeighborFound -> " + instance.getRemoteDevice(macAddress).getName());
-				//tsMonitor.addNotNeighborDevices(instance.getRemoteDevice(macAddress).getName(), macAddress);
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			// TODO Auto-generated method stub
+//			try {
+//				System.out.println(">>>NetworkEventListener>>> NotNeighborFound -> " + instance.getRemoteDevice(macAddress).getName());
+//				//tsMonitor.addNotNeighborDevices(instance.getRemoteDevice(macAddress).getName(), macAddress);
+//                try {
+//                    instance.connect(macAddress);
+//                } catch (RemoteException e) {
+//                    e.printStackTrace();
+//                }
+//			} catch (RemoteException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}
 
 		@Override

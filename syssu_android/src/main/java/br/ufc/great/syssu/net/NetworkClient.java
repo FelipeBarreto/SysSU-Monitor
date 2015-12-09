@@ -95,8 +95,6 @@ public class NetworkClient {
 					}
 
 					System.out.println(">>> reponse list size "  + AdhocNetworkManager.responseList.size());
-					Toast.makeText(this.context,"Send Bluetooth Message to " 
-							+ AdhocNetworkManager.responseList.size() + " devices.", Toast.LENGTH_SHORT).show();
 					System.out.println(">>> send bluetooth Message" + message);
 					System.out.println(">>> get bluetooth response" + result);
 
