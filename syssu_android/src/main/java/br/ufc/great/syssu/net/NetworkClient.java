@@ -1,18 +1,18 @@
 package br.ufc.great.syssu.net;
 
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
-import br.ufc.great.somc.networklayer.base.NetworkManager;
-import br.ufc.great.syssu.base.Provider;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+import br.ufc.great.iot.networklayer.base.NetworkManager;
+import br.ufc.great.syssu.base.Provider;
 public class NetworkClient {
 
 	private String address;
@@ -95,8 +95,6 @@ public class NetworkClient {
 					}
 
 					System.out.println(">>> reponse list size "  + AdhocNetworkManager.responseList.size());
-					Toast.makeText(this.context,"Send Bluetooth Message to " 
-							+ AdhocNetworkManager.responseList.size() + " devices.", Toast.LENGTH_SHORT).show();
 					System.out.println(">>> send bluetooth Message" + message);
 					System.out.println(">>> get bluetooth response" + result);
 

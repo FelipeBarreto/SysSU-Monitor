@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import br.ufc.great.syssu.base.Pattern;
+import br.ufc.great.syssu.base.Provider;
 import br.ufc.great.syssu.base.Tuple;
 import br.ufc.great.syssu.base.TupleSpaceException;
 import br.ufc.great.syssu.base.interfaces.IReaction;
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SyssuManager mSyssu;
 
-    private String myId = "Device A";
+    private String myId = "Device B";
     private boolean running = false;
     private Object subscribeId;
 
@@ -68,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                 Tuple t = (Tuple) new Tuple().addField("ContextKey", "context.device.id")
                                             .addField("DeviceId", myId);
                 while(running){
-                    mSyssu.put(t);
+                    mSyssu.put(t, Provider.ADHOC);
 
                     try {
                         Thread.sleep(1000);
@@ -107,6 +108,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void react(Tuple tuple) {
                 String id = tuple.getField(1).getValue().toString();
+
+                if(myId.equals(id)){
+                    return;
+                }
+
                 if(!mUsers.contains(id)){
                     mUsers.add(id);
                     mAdapter.setmDataset(mUsers);
@@ -115,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        subscribeId = mSyssu.subscribe(reaction);
+        subscribeId = mSyssu.subscribe(reaction, Provider.LOCAL);
     }
 
     @Override

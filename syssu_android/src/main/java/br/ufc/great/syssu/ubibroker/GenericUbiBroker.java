@@ -14,6 +14,7 @@ public class GenericUbiBroker {
 	private UbiBroker infraUbiBroker;
 	private UbiBroker adhocUbiBroker;
 	private Context context;
+	private static GenericUbiBroker instance;
 
 	private GenericUbiBroker(Context context) throws IOException {
 		this.context = context;
@@ -35,6 +36,12 @@ public class GenericUbiBroker {
 				context,
 				Provider.INFRA
 				);
+
+		instance = this;
+	}
+
+	public static GenericUbiBroker getLastBroker(){
+		return instance;
 	}
 
 	public static GenericUbiBroker createUbibroker(Context context) throws IOException {

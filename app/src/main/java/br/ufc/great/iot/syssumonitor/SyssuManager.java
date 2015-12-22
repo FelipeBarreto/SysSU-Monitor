@@ -60,9 +60,9 @@ public class SyssuManager {
         }
     }
 
-    public void put (Tuple tuple){
+    public void put (Tuple tuple, Provider provider){
         try {
-            mDomain.put(tuple, Provider.ADHOC);
+            mDomain.put(tuple, provider);
         } catch (TupleSpaceException e) {
             e.printStackTrace();
         } catch (TupleSpaceSecurityException e) {
@@ -70,9 +70,9 @@ public class SyssuManager {
         }
     }
 
-    public Object subscribe (IReaction reaction){
+    public Object subscribe (IReaction reaction, Provider provider){
         try {
-            return mDomain.subscribe(reaction, "put", "", Provider.ADHOC);
+            return mDomain.subscribe(reaction, "put", "", provider);
         } catch (TupleSpaceException e) {
             e.printStackTrace();
         } catch (TupleSpaceSecurityException e) {
@@ -92,9 +92,9 @@ public class SyssuManager {
         }
     }
 
-    public void read(Pattern pattern){
+    public void read(Pattern pattern, Provider provider){
         try {
-            mDomain.read(pattern, "", null, Provider.ADHOC);
+            mDomain.read(pattern, "", null, provider);
         } catch (TupleSpaceException e) {
             e.printStackTrace();
         } catch (TupleSpaceSecurityException e) {

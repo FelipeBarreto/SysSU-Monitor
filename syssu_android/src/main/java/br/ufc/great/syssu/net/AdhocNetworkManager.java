@@ -1,21 +1,31 @@
 package br.ufc.great.syssu.net;
 
-import java.util.Vector;
-import java.util.concurrent.Semaphore;
+import android.content.Context;
+import android.os.RemoteException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
-import android.os.RemoteException;
-import br.ufc.great.somc.networklayer.base.NetworkEventListener;
-import br.ufc.great.somc.networklayer.base.NetworkManager;
-import br.ufc.great.somc.networklayer.bluetooth.BluetoothEventsListener;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Vector;
+import java.util.concurrent.Semaphore;
+
+import br.ufc.great.iot.networklayer.base.NetworkEventListener;
+import br.ufc.great.iot.networklayer.base.NetworkManager;
+import br.ufc.great.iot.networklayer.bluetooth.BluetoothEventsListener;
+import br.ufc.great.syssu.base.Provider;
+import br.ufc.great.syssu.base.Tuple;
+import br.ufc.great.syssu.base.TupleSpaceException;
+import br.ufc.great.syssu.base.TupleSpaceSecurityException;
 import br.ufc.great.syssu.jsonrpc2.JSONRPC2InvalidMessageException;
 import br.ufc.great.syssu.jsonrpc2.JSONRPC2Message;
 import br.ufc.great.syssu.jsonrpc2.JSONRPC2ParseException;
 import br.ufc.great.syssu.jsonrpc2.JSONRPC2Request;
 import br.ufc.great.syssu.jsonrpc2.JSONRPC2Response;
+import br.ufc.great.syssu.ubibroker.GenericDomain;
+import br.ufc.great.syssu.ubibroker.GenericUbiBroker;
+import br.ufc.great.syssu.ubicentre.UbiCentreProcess;
 import br.ufc.great.syssu.ubicentre.controllers.FrontController;
 
 public class AdhocNetworkManager {
@@ -25,6 +35,9 @@ public class AdhocNetworkManager {
 	public static TS_Monitor tsMonitor;
 	public static Semaphore semaphore = new Semaphore(0);
 	public static Vector<String> responseList = new Vector<String>();
+	private static GenericDomain mDomain;
+
+	private static final int LOCAL_PORT = 9090;
 
 	public static NetworkManager getNetworkManagerInstance(Context context){
 		if (instance == null) {
@@ -33,9 +46,10 @@ public class AdhocNetworkManager {
 			instance.init(context);
 			instance.subscribe(messageListener);
 			instance.onResume();
-			instance.subscribeBluetoothOptionalEvents(bluetoothEventsListener);
+			//instance.subscribeBluetoothOptionalEvents(bluetoothEventsListener);
 			tsMonitor = new TS_Monitor();
-        }
+
+		}
 		return instance;
 	}
 
@@ -113,20 +127,47 @@ public class AdhocNetworkManager {
 				responseList.add(msn.toString());
 				semaphore.release();
 			}
+
+			Tuple t = new Tuple();
+
+			try {
+				JSONObject tupleJson = message.getJSONObject("params").getJSONObject("tuple");
+				Iterator<String> keys = tupleJson.keys();
+				while(keys.hasNext()){
+					String key = keys.next();
+					t.addField(key, tupleJson.getString(key));
+				}
+
+				if(mDomain == null){
+					try {
+						mDomain = (GenericDomain) GenericUbiBroker.getLastBroker().getDomain("GREAT");
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+
+				mDomain.put(t, Provider.LOCAL);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			} catch (TupleSpaceException e) {
+				e.printStackTrace();
+			} catch (TupleSpaceSecurityException e) {
+				e.printStackTrace();
+			}
 			System.out.println(">>>NetworkEventListener>>> onReceiveMessage >>>END");
 			
 		}
 
 		@Override
 		public void onNotNeighborFound(String macAddress) {
-			// TODO Auto-generated method stub
-			try {
-				System.out.println(">>>NetworkEventListener>>> NotNeighborFound -> " + instance.getRemoteDevice(macAddress).getName());
-				//tsMonitor.addNotNeighborDevices(instance.getRemoteDevice(macAddress).getName(), macAddress);
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			// TODO Auto-generated method stub
+//			try {
+//				System.out.println(">>>NetworkEventListener>>> NotNeighborFound -> " + instance.getRemoteDevice(macAddress).getName());
+//				//tsMonitor.addNotNeighborDevices(instance.getRemoteDevice(macAddress).getName(), macAddress);
+//			} catch (RemoteException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}
 
 		@Override
@@ -194,4 +235,14 @@ public class AdhocNetworkManager {
 			System.out.println(">>>bluetoothEventsListener>>> onNotNeighborDeviceFound for >> " + deviceName);
 		}
 	};
+
+	private static void startUbiCentre() {
+		//start Ubicentre
+		try {
+			Thread t = new Thread(new UbiCentreProcess(LOCAL_PORT), "UbiCentre Process");
+			t.start();
+		} catch (Exception ex) {
+			System.exit(1);
+		}
+	}
 }
